@@ -20,7 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
+    <Folder Include="Commands\Config\" />
+    <Folder Include="Commands\Magic\" />
+    <Folder Include="Commands\Quote\" />
+    <Folder Include="Services\Magic\" />
+    <Folder Include="Services\Quote\" />
+    <Folder Include="Structures\Magic\" />
+    <Folder Include="Structures\Quote\" />
   </ItemGroup>
 
 </Project>
