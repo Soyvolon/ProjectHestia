@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.HttpOverrides;
+﻿using DSharpPlus;
+
+using Microsoft.AspNetCore.HttpOverrides;
+
+using ProjectHestia.Data.Services.Discord;
 
 namespace ProjectHestia;
 
@@ -19,7 +23,8 @@ public class Startup
         services.AddRazorPages();
         services.AddServerSideBlazor();
 
-
+        services
+            .AddSingleton<IDiscordService, DiscordService>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 namespace ProjectHestia.Data.Services.Discord;
 public interface IDiscordService
 {
-
+    public Task InitalizeAsync();
 }
