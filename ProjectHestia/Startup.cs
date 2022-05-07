@@ -1,8 +1,11 @@
 ﻿using DSharpPlus;
 
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 
+using ProjectHestia.Data.Database;
 using ProjectHestia.Data.Services.Discord;
+using ProjectHestia.Data.Services.Quote;
 
 namespace ProjectHestia;
 
@@ -23,8 +26,27 @@ public class Startup
         services.AddRazorPages();
         services.AddServerSideBlazor();
 
+        services.AddDbContextFactory<ApplicationDbContext>(options =>
+            options.UseNpgsql(
+                Configuration.GetConnectionString("database"))
+            #if DEBUG
+            .EnableSensitiveDataLogging()
+            .EnableDetailedErrors()
+            #endif
+            , ServiceLifetime.Singleton);
+
         services
-            .AddSingleton<IDiscordService, DiscordService>();
+            .AddScoped(p =>
+                p.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext());
+
+        services
+            .AddSingleton<IDiscordService, DiscordService>()
+            .AddSingleton<IQuoteService, QuoteService>()
+            .AddSingleton(new DiscordConfiguration()
+            {
+                Token = Configuration["Discord:Token"]
+            })
+            .AddSingleton<DiscordShardedClient>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,6 +64,14 @@ public class Startup
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
+
+        using var scope = app.ApplicationServices.CreateScope();
+        var dbFac = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
+        using var db = dbFac.CreateDbContext();
+        ApplyDatabaseMigrations(db);
+
+        var discordClient = scope.ServiceProvider.GetRequiredService<IDiscordService>();
+        _ = Task.Run(async () => await discordClient.InitalizeAsync());
 
         app.UseForwardedHeaders(new ForwardedHeadersOptions()
         {
@@ -61,5 +91,16 @@ public class Startup
             endpoints.MapBlazorHub();
             endpoints.MapFallbackToPage("/_Host");
         });
+    }
+
+    private static void ApplyDatabaseMigrations(DbContext database)
+    {
+        if (!(database.Database.GetPendingMigrations()).Any())
+        {
+            return;
+        }
+
+        database.Database.Migrate();
+        database.SaveChanges();
     }
 }

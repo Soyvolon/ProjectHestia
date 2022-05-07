@@ -1,4 +1,6 @@
 ﻿using DSharpPlus;
+using DSharpPlus.Entities;
+using DSharpPlus.ModalCommands;
 using DSharpPlus.SlashCommands;
 
 using System;
@@ -9,9 +11,19 @@ using System.Threading.Tasks;
 
 namespace ProjectHestia.Data.Commands.Quote;
 
-[SlashCommandGroup("Quote", "Quote commands", true)]
-[SlashCommandPermissions(Permissions.SendMessages)]
-public partial class QuoteCommand : ApplicationCommandModule
+public partial class QuoteCommand : CommandModule
 {
+    [SlashCommand("add", "Add a new quote")]
+    [SlashCommandPermissions(Permissions.ManageMessages)]
+    public async Task AddQuoteAsync(InteractionContext ctx)
+    {
+        var modal = ModalBuilder.Create("quote")
+            .WithTitle("Add Quote")
+            .AddComponents(new TextInputComponent("Author", "author", "Author"))
+            .AddComponents(new TextInputComponent("Saved By", "saved-by", "Who saved this quote..."))
+            .AddComponents(new TextInputComponent("Content", "content", "What do you want to quote...", style: TextInputStyle.Paragraph))
+            .AsEphemeral();
 
+        await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);
+    }
 }

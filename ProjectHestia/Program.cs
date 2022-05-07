@@ -16,7 +16,7 @@ public class Program
         => Host.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration(config =>
             {
-                config.AddJsonFile(Path.Join("Config", "website_config.json"));
+                config.AddJsonFile(Path.Join("Config", "app_config.json"));
             })
             .ConfigureServices((hostContext, services) =>
             {
