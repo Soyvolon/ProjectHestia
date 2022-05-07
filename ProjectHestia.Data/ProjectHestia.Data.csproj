@@ -7,10 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-01088" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.2.0-nightly-01088" />
-    <PackageReference Include="DSharpPlus.Rest" Version="4.2.0-nightly-01088" />
-    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.2.0-nightly-01088" />
+    <Compile Remove="Commands\Config\**" />
+    <EmbeddedResource Remove="Commands\Config\**" />
+    <None Remove="Commands\Config\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus" Version="4.3.0-nightly-01129" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.3.0-nightly-01129" />
+    <PackageReference Include="DSharpPlus.Rest" Version="4.3.0-nightly-01129" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="4.3.0-nightly-01129" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.3">
       <PrivateAssets>all</PrivateAssets>
@@ -18,13 +24,16 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="XeroxDev.DSharpPlus.ModalCommands" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Commands\Config\" />
+    <Folder Include="Commands\Configuration\" />
     <Folder Include="Commands\Magic\" />
-    <Folder Include="Commands\Quote\" />
+    <Folder Include="Commands\Magic\" />
+    <Folder Include="Database\" />
     <Folder Include="Services\Magic\" />
+    <Folder Include="Services\Quote\" />
     <Folder Include="Services\Quote\" />
     <Folder Include="Structures\Magic\" />
     <Folder Include="Structures\Quote\" />
