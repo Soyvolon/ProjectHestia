@@ -8,8 +8,14 @@
 
   <ItemGroup>
     <Compile Remove="Commands\Config\**" />
+    <Compile Remove="Structures\Magic\**" />
+    <Compile Remove="Structures\Quote\**" />
     <EmbeddedResource Remove="Commands\Config\**" />
+    <EmbeddedResource Remove="Structures\Magic\**" />
+    <EmbeddedResource Remove="Structures\Quote\**" />
     <None Remove="Commands\Config\**" />
+    <None Remove="Structures\Magic\**" />
+    <None Remove="Structures\Quote\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,8 +45,6 @@
     <Folder Include="Migrations\" />
     <Folder Include="Services\Magic\" />
     <Folder Include="Structures\Enum\" />
-    <Folder Include="Structures\Magic\" />
-    <Folder Include="Structures\Quote\" />
   </ItemGroup>
 
 </Project>

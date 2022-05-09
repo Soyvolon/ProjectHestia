@@ -22,6 +22,7 @@ public class AddQuoteContetMenu : CommandModule
             .AddComponents(new TextInputComponent("Author", "author", "Author", ctx.TargetMessage.Author.Username))
             .AddComponents(new TextInputComponent("Saved By", "saved-by", "Who saved this quote?", ctx.User.Username))
             .AddComponents(new TextInputComponent("Content", "content", "What do you want to quote...", ctx.TargetMessage.Content, style: TextInputStyle.Paragraph))
+            .AddComponents(new TextInputComponent("Color", "color", "A 6 digit Hex color (# is optional)...", "#3498db", min_length: 6, max_length: 7))
             .AsEphemeral();
 
         await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);

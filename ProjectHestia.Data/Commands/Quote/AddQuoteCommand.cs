@@ -22,6 +22,7 @@ public partial class QuoteCommand : CommandModule
             .AddComponents(new TextInputComponent("Author", "author", "Author"))
             .AddComponents(new TextInputComponent("Saved By", "saved-by", "Who saved this quote..."))
             .AddComponents(new TextInputComponent("Content", "content", "What do you want to quote...", style: TextInputStyle.Paragraph))
+            .AddComponents(new TextInputComponent("Color", "color", "A 6 digit Hex color (# is optional)...", "#3498db", min_length: 6, max_length: 7))
             .AsEphemeral();
 
         await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);

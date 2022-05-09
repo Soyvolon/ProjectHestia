@@ -1,4 +1,6 @@
-﻿using ProjectHestia.Data.Structures.Data.Guild;
+﻿using DSharpPlus.Entities;
+
+using ProjectHestia.Data.Structures.Data.Guild;
 
 namespace ProjectHestia.Data.Structures.Data.Quotes;
 
@@ -11,7 +13,70 @@ public class GuildQuote : DataObject<Guid>
     public string SavedBy { get; set; }
     public string Content { get; set; }
 
+    public int? ColorRaw { get; set; }
+
+    private DiscordColor? _color;
+    public DiscordColor? Color
+    {
+        get
+        {
+            if (_color is null)
+            {
+                if (ColorRaw is null)
+                {
+                    ColorRaw = 0x3498db;
+                }
+                
+                _color = new DiscordColor((int)ColorRaw);
+            }
+
+            return _color.Value;
+        }
+
+        set
+        {
+            if (value.HasValue)
+            {
+                ColorRaw = value.Value.Value;
+                _color = value;
+            }
+            else
+            {
+                ColorRaw = 0x3498db;
+                _color = new DiscordColor((int)ColorRaw);
+            }
+        }
+    }
+
     public GuidConfiguration Guild { get; set; }
     public ulong GuildId { get; set; }
+
+    public long Uses { get; set; } = 0;
+
+    public DiscordEmbedBuilder UseQuote()
+    {
+        Uses++;
+
+        return Build();
+    }
+
+    public DiscordEmbedBuilder Build()
+    {
+        return new DiscordEmbedBuilder()
+            .WithTitle($"Quote {QuoteId} - {Author}")
+            .WithDescription(Content)
+            .WithFooter($"Saved By: {SavedBy} | Uses: {Uses}")
+            .WithColor((DiscordColor)Color)
+            .WithTimestamp(LastEdit);
+    }
+
+    public void Update(string author, string savedBy, string contents, DiscordColor? color)
+    {
+        Author = author;
+        SavedBy = savedBy;
+        Content = contents;
+        Color = color;
+        LastEdit = DateTime.UtcNow;
+    }
 }
 #nullable enable

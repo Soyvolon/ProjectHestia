@@ -30,6 +30,9 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(e => e.GuildId);
 
         guildQuotes.HasAlternateKey(x => new { x.GuildId, x.QuoteId });
+        guildQuotes.Property(e => e.QuoteId)
+            .ValueGeneratedOnAdd();
+        guildQuotes.Ignore(e => e.Color);
 
         var guildConfigurations = builder.Entity<GuidConfiguration>();
         guildConfigurations.HasKey(e => e.Key);

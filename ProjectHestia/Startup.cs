@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 using ProjectHestia.Data.Database;
 using ProjectHestia.Data.Services.Discord;
+using ProjectHestia.Data.Services.Guild;
 using ProjectHestia.Data.Services.Quote;
 
 namespace ProjectHestia;
@@ -42,6 +43,7 @@ public class Startup
         services
             .AddSingleton<IDiscordService, DiscordService>()
             .AddSingleton<IQuoteService, QuoteService>()
+            .AddSingleton<IGuildService, GuildService>()
             .AddSingleton(new DiscordConfiguration()
             {
                 Token = Configuration["Discord:Token"]

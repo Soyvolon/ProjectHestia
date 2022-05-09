@@ -90,7 +90,7 @@ public class DiscordService : IDiscordService
 
     private Task ModalCommand_ModalCommandErrored(ModalCommandsExtension sender, ModalCommandErrorEventArgs e)
     {
-        sender.Client.Logger.LogWarning(e.Exception, "Modal Command Errored");
+        sender.Client?.Logger.LogWarning(e.Exception, "Modal Command Errored");
 
         return Task.CompletedTask;
     }

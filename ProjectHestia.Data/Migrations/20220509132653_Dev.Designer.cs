@@ -12,7 +12,7 @@ using ProjectHestia.Data.Database;
 namespace ProjectHestia.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220507184230_Dev")]
+    [Migration("20220509132653_Dev")]
     partial class Dev
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -47,6 +47,9 @@ namespace ProjectHestia.Data.Migrations
                     b.Property<string>("Author")
                         .HasColumnType("text");
 
+                    b.Property<int?>("ColorRaw")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Content")
                         .HasColumnType("text");
 
@@ -57,10 +60,16 @@ namespace ProjectHestia.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<long>("QuoteId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("QuoteId"));
 
                     b.Property<string>("SavedBy")
                         .HasColumnType("text");
+
+                    b.Property<long>("Uses")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Key");
 
