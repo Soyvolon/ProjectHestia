@@ -15,6 +15,7 @@ public interface IQuoteService
     public Task<ActionResult<GuildQuote>> GetQuoteAsync(ulong guildId, long quoteId);
     public Task<ActionResult<GuildQuote>> UpdateQuoteAsync(Guid key, string author, string savedBy, string quote, string color);
     public Task<ActionResult<GuildQuote>> AddQuoteAsync(ulong guild, string author, string savedBy, string quote, string color);
-    public Task<ActionResult<GuildQuote>> DeleteQuoteAsync(Guid key);
+    public Task<ActionResult<GuildQuote>> DeleteQuoteAsync(ulong guild, long quoteId);
     public Task<ActionResult<DiscordEmbedBuilder>> UseQuoteAsync(ulong guildId, long quoteId);
+    public Task<ActionResult<DiscordEmbedBuilder>> UseRandomQuoteAsync(ulong guildId);
 }

@@ -12,16 +12,19 @@ public class QuoteService : IQuoteService
 {
     private IDbContextFactory<ApplicationDbContext> DbContextFactory { get; init; }
     private IGuildService GuildService { get; init; }
+    private Random Random { get; set; }
 
     public QuoteService(IDbContextFactory<ApplicationDbContext> dbContextFactory, IGuildService guildService)
     {
         DbContextFactory = dbContextFactory;
         GuildService = guildService;
+
+        Random = new();
     }
 
     public async Task<ActionResult<GuildQuote>> GetQuoteAsync(ulong guildId, long quoteId)
     {
-        var dbContext = await DbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
 
         var quote = await dbContext.GuildQuotes
             .Where(x => x.QuoteId == quoteId)
@@ -95,16 +98,32 @@ public class QuoteService : IQuoteService
         return new(false, new List<string> { "Failed to ensure a guild existed for this quote." });
     }
 
-    public Task<ActionResult<GuildQuote>> DeleteQuoteAsync(Guid key)
+    public async Task<ActionResult<GuildQuote>> DeleteQuoteAsync(ulong guildId, long quoteId)
     {
-        throw new NotImplementedException();
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+
+        var quote = await dbContext.GuildQuotes
+            .Where(x => x.QuoteId == quoteId)
+            .Where(x => x.GuildId == guildId)
+            .FirstOrDefaultAsync();
+
+        if (quote is null)
+            return new(false, new List<string> { "No quote found to delete." });
+
+        dbContext.Remove(quote);
+        await dbContext.SaveChangesAsync();
+
+        return new(true, null, quote);
     }
 
     public async Task<ActionResult<DiscordEmbedBuilder>> UseQuoteAsync(ulong guildId, long quoteId)
     {
-        var dbContext = await DbContextFactory.CreateDbContextAsync();
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
 
-        var quote = await dbContext.FindAsync<GuildQuote>(guildId, quoteId);
+        var quote = await dbContext.GuildQuotes
+            .Where(x => x.QuoteId == quoteId)
+            .Where(x => x.GuildId == guildId)
+            .FirstOrDefaultAsync();
 
         if (quote is null)
             return new(false, new List<string> { "Failed to find a quote to use." });
@@ -114,5 +133,17 @@ public class QuoteService : IQuoteService
         await dbContext.SaveChangesAsync();
 
         return new(true, null, data);
+    }
+
+    public async Task<ActionResult<DiscordEmbedBuilder>> UseRandomQuoteAsync(ulong guildId)
+    {
+        var guild = await GuildService.GetDiscordGuildConfiguration(guildId);
+
+        if (guild is null)
+            return new(false, new List<string> { "No guild found to get quotes form." });
+
+        var quote = guild.GuildQuotes[Random.Next(0, guild.GuildQuotes.Count)];
+
+        return await UseQuoteAsync(guildId, quote.QuoteId);
     }
 }

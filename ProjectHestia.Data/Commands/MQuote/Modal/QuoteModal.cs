@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProjectHestia.Data.Commands.Quote.Modal;
+namespace ProjectHestia.Data.Commands.MQuote.Modal;
 public class QuoteModal : ModalCommandModule
 {
     private IQuoteService QuoteService { get; init; }
@@ -62,4 +62,39 @@ public class QuoteModal : ModalCommandModule
     [ModalCommand("quote")]
     public async Task ModifyQuoteAsync(ModalContext ctx, string author, string savedBy, string quote, string color)
         => await ModifyQuoteAsync(ctx, author, savedBy, quote, color, null);
+
+    [ModalCommand("quote-delete")]
+    public async Task DeleteQuoteAsync(ModalContext ctx, string id, string author, string savedBy, string quote, string color)
+    {
+        await ctx.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+        if(long.TryParse(id, out var quoteId))
+        {
+            var res = await QuoteService.DeleteQuoteAsync(ctx.Guild.Id, quoteId);
+
+            if(res.GetResult(out var resData, out var err))
+            {
+                // Display the quote
+                await ctx.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
+                    .AddEmbed(resData.Build()
+                        .WithTitle($"Deleted Quote {quoteId}")));
+            }
+            else
+            {
+                // An error occoured.
+                await ctx.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
+                    .AddEmbed(EmbedTemplates.GetErrorBuilder()
+                        .WithTitle("Failed to edit/add a quote.")
+                        .WithDescription(err?.FirstOrDefault() ?? "")));
+            }
+        }
+        else
+        {
+            // An error occoured.
+            await ctx.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
+                .AddEmbed(EmbedTemplates.GetErrorBuilder()
+                    .WithTitle("Failed to delete a quote.")
+                    .WithDescription($"Could not parse {id} into a valid quote ID. Make sure not to change this value.")));
+        }
+    }
 }

@@ -3,22 +3,18 @@ using DSharpPlus.SlashCommands;
 
 using ProjectHestia.Data.Services.Quote;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace ProjectHestia.Data.Commands.Quote;
 
-[SlashCommandGroup("Quote", "Quote commands", true)]
-[SlashCommandPermissions(Permissions.ManageMessages)]
-public partial class QuoteCommand : CommandModule
+[SlashCommandGroup("quote", "Quote commands")]
+[SlashCommandPermissions(Permissions.SendMessages)]
+public partial class QuoteCommandGroup : CommandModule
 {
     private IQuoteService QuoteService { get; init; }
 
-    public QuoteCommand(IQuoteService quoteService)
+    public QuoteCommandGroup(IQuoteService quoteService)
     {
         QuoteService = quoteService;
     }
+
+
 }

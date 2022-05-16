@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProjectHestia.Data.Commands.Quote.Context;
+namespace ProjectHestia.Data.Commands.MQuote.Context;
 
 public class AddQuoteContetMenu : CommandModule
 {

@@ -23,7 +23,7 @@ public class GuildService : IGuildService
     {
         try
         {
-            var dbContext = await DbContextFactory.CreateDbContextAsync();
+            await using var dbContext = await DbContextFactory.CreateDbContextAsync();
 
             var guild = await dbContext.GuidConfigurations
                 .Where(x => x.Key == guildId)
@@ -47,5 +47,17 @@ public class GuildService : IGuildService
         {
             return false;
         }
+    }
+
+    public async Task<GuidConfiguration?> GetDiscordGuildConfiguration(ulong guildId)
+    {
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+
+        var guild = await dbContext.GuidConfigurations
+            .Where(x => x.Key == guildId)
+            .Include(x => x.GuildQuotes)
+            .FirstOrDefaultAsync();
+
+        return guild;
     }
 }

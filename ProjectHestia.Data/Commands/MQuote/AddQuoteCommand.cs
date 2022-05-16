@@ -9,9 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ProjectHestia.Data.Commands.Quote;
+namespace ProjectHestia.Data.Commands.MQuote;
 
-public partial class QuoteCommand : CommandModule
+public partial class ManageQuoteCommandGroup : CommandModule
 {
     [SlashCommand("add", "Add a new quote")]
     [SlashCommandPermissions(Permissions.ManageMessages)]
