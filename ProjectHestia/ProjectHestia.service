@@ -2,7 +2,7 @@
 Description=The Project Hestia application
 
 [Service]
-Type=Notify
+Type=notify
 ExecStart=/usr/bin/dotnet /root/ProjectHestia/ProjectHestia.dll
 WorkingDirectory=/root/ProjectHestia
 SyslogIdentifier=ProjectHestia
