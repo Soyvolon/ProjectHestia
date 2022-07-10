@@ -1,0 +1,58 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+  release:
+    types: ['published']
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+        include-prerelease: true
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore --output artifact/build/ProjectHestia
+    - name: Stop Current Release
+      uses: garygrossgarten/github-action-ssh@release
+      continue-on-error: true
+      with:
+        command: ${{ secrets.STOP_CMD }}
+        host: ${{ secrets.RELEASE_HOST }}
+        username: ${{ secrets.RELEASE_USER }}
+        passphrase: ${{ secrets.RELEASE_PASSPHRASE }}
+        privateKey: ${{ secrets.RELEASE_PRIVATE_KEY }}
+    - name: Copy Files over SSH
+      uses: garygrossgarten/github-action-scp@release
+      with:
+        local: artifact/build/ProjectHestia
+        remote: ${{ secrets.RELEASE_DEST }}
+        host: ${{ secrets.RELEASE_HOST }}
+        username: ${{ secrets.RELEASE_USER }}
+        passphrase: ${{ secrets.RELEASE_PASSPHRASE }}
+        privateKey: ${{ secrets.RELEASE_PRIVATE_KEY }}
+    - name: Start New Release
+      uses: garygrossgarten/github-action-ssh@release
+      with:
+        command: ${{ secrets.START_CMD }}
+        host: ${{ secrets.RELEASE_HOST }}
+        username: ${{ secrets.RELEASE_USER }}
+        passphrase: ${{ secrets.RELEASE_PASSPHRASE }}
+        privateKey: ${{ secrets.RELEASE_PRIVATE_KEY }}
+    - name: Publish Build Artifact
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        # Artifact name
+        name: "501st Data Core Release"
+        # A file, directory or wildcard pattern that describes what to upload
+        path: artifact/build/ProjectHestia/
+        # The desired behavior if no files are found using the provided path.
+        error: "No files found to publish an artifact for"
