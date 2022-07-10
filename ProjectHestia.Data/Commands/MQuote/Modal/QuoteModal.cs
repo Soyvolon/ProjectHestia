@@ -23,17 +23,27 @@ public class QuoteModal : ModalCommandModule
         QuoteService = quoteService;
     }
 
-    [ModalCommand("quote-edit")]
-    public async Task ModifyQuoteAsync(ModalContext ctx, string author, string savedBy, string quote, string color, string image, string? quoteKey = null)
+    [ModalCommand("quote-edit-metadata")]
+    public async Task ModifyQuoteMetadataAsync(ModalContext ctx, string author, string savedBy, string color, string uses, string? quoteKey = null)
+        => await ModifyQuoteAsync(ctx, author, savedBy, null!, color, null!, uses, quoteKey, true);
+
+    [ModalCommand("quote-edit-content")]
+    public async Task ModifyQuoteContentAsync(ModalContext ctx, string author, string quote, string image, string? quoteKey = null)
+        => await ModifyQuoteAsync(ctx, author, null!, quote, null!, image, null!, quoteKey, false);
+
+    public async Task ModifyQuoteAsync(ModalContext ctx, string author, string savedBy, string quote, string color, string image, string uses, string? quoteKey = null, bool metadata = false)
     {
         await ctx.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
         GuildQuote? quoteData;
         List<string>? err;
-        if(Guid.TryParse(quoteKey, out var key))
+
+        _ = long.TryParse(uses, out var usesInt);
+
+        if (Guid.TryParse(quoteKey, out var key))
         {
             // Update quote.
-            var res = await QuoteService.UpdateQuoteAsync(key, author, savedBy, quote, color, image);
+            var res = await QuoteService.UpdateQuoteAsync(key, author, savedBy, quote, color, image, usesInt, metadata);
             _ = res.GetResult(out quoteData, out err);
         }
         else
@@ -43,7 +53,7 @@ public class QuoteModal : ModalCommandModule
             _ = res.GetResult(out quoteData, out err);
         }
 
-        if(quoteData is null)
+        if (quoteData is null)
         {
             // An error occoured.
             await ctx.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
@@ -64,7 +74,7 @@ public class QuoteModal : ModalCommandModule
         => await ModifyQuoteAsync(ctx, author, savedBy, quote, color, image, null);
 
     [ModalCommand("quote-delete")]
-    public async Task DeleteQuoteAsync(ModalContext ctx, string id, string author, string savedBy, string quote, string color, string image)
+    public async Task DeleteQuoteAsync(ModalContext ctx, string id, string author, string quote, string image)
     {
         await ctx.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 

@@ -13,7 +13,7 @@ namespace ProjectHestia.Data.Services.Quote;
 public interface IQuoteService
 {
     public Task<ActionResult<GuildQuote>> GetQuoteAsync(ulong guildId, long quoteId);
-    public Task<ActionResult<GuildQuote>> UpdateQuoteAsync(Guid key, string author, string savedBy, string quote, string color, string image, long? uses = null);
+    public Task<ActionResult<GuildQuote>> UpdateQuoteAsync(Guid key, string author, string savedBy, string quote, string color, string image, long? uses, bool metadata);
     public Task<ActionResult<GuildQuote>> AddQuoteAsync(ulong guild, string author, string savedBy, string quote, string color, string image, long? uses = null, long? forceId = null);
     public Task<ActionResult<GuildQuote>> DeleteQuoteAsync(ulong guild, long quoteId);
     public Task<ActionResult<DiscordEmbedBuilder>> UseQuoteAsync(ulong guildId, long quoteId);

@@ -72,15 +72,23 @@ public class GuildQuote : DataObject<Guid>
             .WithTimestamp(LastEdit);
     }
 
-    public void Update(string author, string savedBy, string contents, DiscordColor? color, string image, long? uses = null)
+    public void Update(string author, string savedBy, string contents, DiscordColor? color, string image, long? uses, bool metadata)
     {
-        Author = author;
-        SavedBy = savedBy;
-        Content = contents;
-        Color = color;
+        if (metadata)
+        {
+            Author = author;
+            SavedBy = savedBy;
+            Color = color;
+            Uses = uses ?? Uses;
+        }
+        else
+        {
+            Author = author;
+            Content = contents;
+            Image = image;
+        }
+        
         LastEdit = DateTime.UtcNow;
-        Image = image;
-        Uses = uses ?? Uses;
     }
 }
 #nullable enable

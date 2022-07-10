@@ -37,16 +37,19 @@ public class QuoteService : IQuoteService
         return new(true, null, quote);
     }
 
-    public async Task<ActionResult<GuildQuote>> UpdateQuoteAsync(Guid key, string author, string savedBy, string quote, string color, string image, long? uses = null)
+    public async Task<ActionResult<GuildQuote>> UpdateQuoteAsync(Guid key, string author, string savedBy, string quote, string color, string image, long? uses, bool metadata)
     {
-        DiscordColor? colorData;
-        try
+        DiscordColor? colorData = null;
+        if (metadata)
         {
-            colorData = new DiscordColor(color);
-        }
-        catch (Exception ex)
-        {
-            return new(false, new List<string> { $"Failed to parse a proper color from {color}.", ex.Message });
+            try
+            {
+                colorData = new DiscordColor(color);
+            }
+            catch (Exception ex)
+            {
+                return new(false, new List<string> { $"Failed to parse a proper color from {color}.", ex.Message });
+            }
         }
 
         var dbContex = await DbContextFactory.CreateDbContextAsync();
@@ -55,9 +58,9 @@ public class QuoteService : IQuoteService
         if (quoteData is null)
             return new(false, new List<string> { "Failed to find a quote to edit. Make sure you did not modify the edit key field." });
 
-        if (!string.IsNullOrEmpty(quote) || !string.IsNullOrEmpty(image))
+        if (metadata || !string.IsNullOrEmpty(quote) || !string.IsNullOrEmpty(image))
         {
-            quoteData.Update(author, savedBy, quote, colorData, image, uses);
+            quoteData.Update(author, savedBy, quote, colorData, image, uses, metadata);
             await dbContex.SaveChangesAsync();
 
             return new(true, null, quoteData);

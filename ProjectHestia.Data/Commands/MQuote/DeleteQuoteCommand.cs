@@ -22,15 +22,11 @@ public partial class ManageQuoteCommandGroup : CommandModule
         }
         else
         {
-            var colorStr = $"{quote.Color!.Value:X}";
-
             var modal = ModalBuilder.Create("quote-delete")
                 .WithTitle("Press Submit to Delete")
                 .AddComponents(new TextInputComponent("ID", "id", "-1", quote.QuoteId.ToString()))
                 .AddComponents(new TextInputComponent("Author", "author", "Author", quote.Author))
-                .AddComponents(new TextInputComponent("Saved By", "saved-by", "Who saved this quote?", quote.SavedBy))
                 .AddComponents(new TextInputComponent("Content", "content", "What do you want to quote...", quote.Content, style: TextInputStyle.Paragraph, required: false))
-                .AddComponents(new TextInputComponent("Color", "color", "A 6 digit Hex color (# is optional)...", colorStr, min_length: 6, max_length: 7))
                 .AddComponents(new TextInputComponent("Image", "image", "A link to an image", quote.Image, required: false))
                 .AsEphemeral();
 
