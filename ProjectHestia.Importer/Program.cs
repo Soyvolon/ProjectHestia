@@ -48,13 +48,13 @@ foreach (var x in oldData)
     foreach (var q in order)
     {
         string color = q.ColorValue is null ? "3498db" : q.ColorValue.Value.ToString("X");
-        var res = await quoteService.AddQuoteAsync(x.Id, q.Author, q.SavedBy, q.Content, color, q.Attachment, q.Uses);
+        var res = await quoteService.AddQuoteAsync(x.Id, q.Author, q.SavedBy, q.Content, color, q.Attachment, q.Uses, q.Id);
         if (!res.GetResult(out var err))
         {
             Console.WriteLine($"{x.Id}:{q.Id}-{err[0]}");
             // Colors cause a lot of problems, so lets try this again
             Console.WriteLine($"Retrying for {x.Id}:{q.Id}\n");
-            res = await quoteService.AddQuoteAsync(x.Id, q.Author, q.SavedBy, q.Content, "3498db", q.Attachment, q.Uses);
+            res = await quoteService.AddQuoteAsync(x.Id, q.Author, q.SavedBy, q.Content, "3498db", q.Attachment, q.Uses, q.Id);
             if(!res.GetResult(out err))
             {
                 Console.WriteLine($"{x.Id}:{q.Id}-{err[0]}\n");

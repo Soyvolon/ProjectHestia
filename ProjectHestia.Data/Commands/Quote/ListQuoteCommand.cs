@@ -46,7 +46,7 @@ public partial class QuoteCommandGroup : CommandModule
 
                 var part = $"{q.Author}: {q.Content}";
                 part = Formatter.Strip(part);
-                part = $"`{i + 1}` - {part}";
+                part = $"`{q.QuoteId}` - {part}";
 
                 if (part.Length > 75)
                     part = part[..72] + "...";

@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -27,8 +26,7 @@ namespace ProjectHestia.Data.Migrations
                 columns: table => new
                 {
                     Key = table.Column<Guid>(type: "uuid", nullable: false),
-                    QuoteId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    QuoteId = table.Column<long>(type: "bigint", nullable: false),
                     Author = table.Column<string>(type: "text", nullable: true),
                     SavedBy = table.Column<string>(type: "text", nullable: true),
                     Content = table.Column<string>(type: "text", nullable: true),

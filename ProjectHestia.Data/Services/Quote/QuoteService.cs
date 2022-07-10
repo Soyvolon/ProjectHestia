@@ -68,7 +68,7 @@ public class QuoteService : IQuoteService
         }
     }
 
-    public async Task<ActionResult<GuildQuote>> AddQuoteAsync(ulong guild, string author, string savedBy, string quote, string color, string image, long? uses = null)
+    public async Task<ActionResult<GuildQuote>> AddQuoteAsync(ulong guild, string author, string savedBy, string quote, string color, string image, long? uses = null, long? forceId = null)
     {
         DiscordColor? colorData;
         try
@@ -82,7 +82,7 @@ public class QuoteService : IQuoteService
 
         if (await GuildService.EnsureGuildCreated(guild))
         {
-            var dbContex = await DbContextFactory.CreateDbContextAsync();
+            await using var dbContex = await DbContextFactory.CreateDbContextAsync();
 
             if (!string.IsNullOrEmpty(quote) || !string.IsNullOrEmpty(image))
             {
@@ -97,6 +97,20 @@ public class QuoteService : IQuoteService
                     Uses = uses ?? 0,
                     LastEdit = DateTime.UtcNow
                 };
+
+                if (forceId is not null)
+                {
+                    quoteData.QuoteId = forceId.Value;
+                }
+                
+                if (quoteData.QuoteId == default)
+                {
+                    var lastQuote = await dbContex.GuildQuotes
+                        .Where(x => x.GuildId == guild)
+                        .OrderBy(x => x.QuoteId)
+                        .LastOrDefaultAsync();
+                    quoteData.QuoteId = (lastQuote?.QuoteId ?? -1) + 1;
+                }
 
                 var dataHook = await dbContex.AddAsync(quoteData);
                 await dbContex.SaveChangesAsync();

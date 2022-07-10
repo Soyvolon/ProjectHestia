@@ -61,10 +61,7 @@ namespace ProjectHestia.Data.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<long>("QuoteId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("QuoteId"));
 
                     b.Property<string>("SavedBy")
                         .HasColumnType("text");
