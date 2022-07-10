@@ -32,6 +32,7 @@ namespace ProjectHestia.Data.Migrations
                     Author = table.Column<string>(type: "text", nullable: true),
                     SavedBy = table.Column<string>(type: "text", nullable: true),
                     Content = table.Column<string>(type: "text", nullable: true),
+                    Image = table.Column<string>(type: "text", nullable: true),
                     ColorRaw = table.Column<int>(type: "integer", nullable: true),
                     GuildId = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     Uses = table.Column<long>(type: "bigint", nullable: false),

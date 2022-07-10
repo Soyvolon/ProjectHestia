@@ -24,7 +24,7 @@ public class QuoteModal : ModalCommandModule
     }
 
     [ModalCommand("quote-edit")]
-    public async Task ModifyQuoteAsync(ModalContext ctx, string author, string savedBy, string quote, string color, string? quoteKey = null)
+    public async Task ModifyQuoteAsync(ModalContext ctx, string author, string savedBy, string quote, string color, string image, string? quoteKey = null)
     {
         await ctx.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
@@ -33,13 +33,13 @@ public class QuoteModal : ModalCommandModule
         if(Guid.TryParse(quoteKey, out var key))
         {
             // Update quote.
-            var res = await QuoteService.UpdateQuoteAsync(key, author, savedBy, quote, color);
+            var res = await QuoteService.UpdateQuoteAsync(key, author, savedBy, quote, color, image);
             _ = res.GetResult(out quoteData, out err);
         }
         else
         {
             // Add quote.
-            var res = await QuoteService.AddQuoteAsync(ctx.Guild.Id, author, savedBy, quote, color);
+            var res = await QuoteService.AddQuoteAsync(ctx.Guild.Id, author, savedBy, quote, color, image);
             _ = res.GetResult(out quoteData, out err);
         }
 
@@ -60,11 +60,11 @@ public class QuoteModal : ModalCommandModule
     }
 
     [ModalCommand("quote")]
-    public async Task ModifyQuoteAsync(ModalContext ctx, string author, string savedBy, string quote, string color)
-        => await ModifyQuoteAsync(ctx, author, savedBy, quote, color, null);
+    public async Task ModifyQuoteAsync(ModalContext ctx, string author, string savedBy, string quote, string color, string image)
+        => await ModifyQuoteAsync(ctx, author, savedBy, quote, color, image, null);
 
     [ModalCommand("quote-delete")]
-    public async Task DeleteQuoteAsync(ModalContext ctx, string id, string author, string savedBy, string quote, string color)
+    public async Task DeleteQuoteAsync(ModalContext ctx, string id, string author, string savedBy, string quote, string color, string image)
     {
         await ctx.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 

@@ -11,12 +11,19 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ProjectHestia.Components\ProjectHestia.Components.csproj" />
     <ProjectReference Include="..\ProjectHestia.Data\ProjectHestia.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ProjectHestia.service">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

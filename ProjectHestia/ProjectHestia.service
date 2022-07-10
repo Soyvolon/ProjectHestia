@@ -1,0 +1,13 @@
+[Unit]
+Description=The Project Hestia application
+
+[Service]
+Type=Notify
+ExecStart=/usr/bin/dotnet /root/ProjectHestia/ProjectHestia.dll
+SyslogIdentifier=ProjectHestia
+User=root
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

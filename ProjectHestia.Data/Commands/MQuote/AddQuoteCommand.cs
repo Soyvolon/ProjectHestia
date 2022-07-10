@@ -21,8 +21,9 @@ public partial class ManageQuoteCommandGroup : CommandModule
             .WithTitle("Add Quote")
             .AddComponents(new TextInputComponent("Author", "author", "Author"))
             .AddComponents(new TextInputComponent("Saved By", "saved-by", "Who saved this quote..."))
-            .AddComponents(new TextInputComponent("Content", "content", "What do you want to quote...", style: TextInputStyle.Paragraph))
+            .AddComponents(new TextInputComponent("Content", "content", "What do you want to quote...", style: TextInputStyle.Paragraph, required: false))
             .AddComponents(new TextInputComponent("Color", "color", "A 6 digit Hex color (# is optional)...", "#3498db", min_length: 6, max_length: 7))
+            .AddComponents(new TextInputComponent("Image", "image", "A link to an image", required: false))
             .AsEphemeral();
 
         await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);

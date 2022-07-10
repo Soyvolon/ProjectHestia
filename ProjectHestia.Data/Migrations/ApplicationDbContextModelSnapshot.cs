@@ -54,6 +54,9 @@ namespace ProjectHestia.Data.Migrations
                     b.Property<decimal>("GuildId")
                         .HasColumnType("numeric(20,0)");
 
+                    b.Property<string>("Image")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("LastEdit")
                         .HasColumnType("timestamp with time zone");
 

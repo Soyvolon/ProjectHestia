@@ -33,6 +33,7 @@ public class Program
             {
                 webBuilder.UseStartup<Startup>();
             })
+            .UseSystemd()
             .UseWindowsService();
 #pragma warning restore CA1416 // Validate platform compatibility
 }

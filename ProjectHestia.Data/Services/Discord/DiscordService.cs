@@ -1,6 +1,8 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.ModalCommands;
 using DSharpPlus.ModalCommands.EventArgs;
 using DSharpPlus.ModalCommands.Extensions;
@@ -25,6 +27,7 @@ public class DiscordService : IDiscordService
 
     private SlashCommandsConfiguration SlashCommandsConfiguration { get; init; }
     private ModalCommandsConfiguration ModalCommandsConfiguration { get; init; }
+    private InteractivityConfiguration InteractivityConfiguration { get; init; }
     
     public DiscordService(IConfiguration configuration, DiscordShardedClient client, IServiceProvider services)
     {
@@ -38,6 +41,11 @@ public class DiscordService : IDiscordService
         ModalCommandsConfiguration = new()
         {
             Services = services
+        };
+        InteractivityConfiguration = new()
+        {
+            ButtonBehavior = DSharpPlus.Interactivity.Enums.ButtonPaginationBehavior.DeleteButtons,
+            PaginationBehaviour = DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround
         };
     }
 
@@ -61,7 +69,7 @@ public class DiscordService : IDiscordService
 #if DEBUG
                         slashCommand.RegisterCommands(t, ulong.Parse(_configuration["Discord:HomeGuild"]));
 #else
-                        extension.RegisterCommands(t);
+                        slashCommand.RegisterCommands(t);
 #endif
 
             slashCommand.ContextMenuErrored += SlashCommand_ContextMenuErrored;
@@ -74,6 +82,8 @@ public class DiscordService : IDiscordService
 
             modalCommand.ModalCommandErrored += ModalCommand_ModalCommandErrored;
         }
+
+        await _client.UseInteractivityAsync(InteractivityConfiguration);
 
         // TOOD: Client Event Registration
         _client.ClientErrored += Client_ClientErrored;

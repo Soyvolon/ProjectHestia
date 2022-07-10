@@ -12,7 +12,7 @@ using ProjectHestia.Data.Database;
 namespace ProjectHestia.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220509132653_Dev")]
+    [Migration("20220710194928_Dev")]
     partial class Dev
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,6 +55,9 @@ namespace ProjectHestia.Data.Migrations
 
                     b.Property<decimal>("GuildId")
                         .HasColumnType("numeric(20,0)");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("LastEdit")
                         .HasColumnType("timestamp with time zone");

@@ -12,6 +12,7 @@ public class GuildQuote : DataObject<Guid>
     public string Author { get; set; }
     public string SavedBy { get; set; }
     public string Content { get; set; }
+    public string Image { get; set; }
 
     public int? ColorRaw { get; set; }
 
@@ -67,16 +68,19 @@ public class GuildQuote : DataObject<Guid>
             .WithDescription(Content)
             .WithFooter($"Saved By: {SavedBy} | Uses: {Uses}")
             .WithColor((DiscordColor)Color)
+            .WithImageUrl(Image)
             .WithTimestamp(LastEdit);
     }
 
-    public void Update(string author, string savedBy, string contents, DiscordColor? color)
+    public void Update(string author, string savedBy, string contents, DiscordColor? color, string image, long? uses = null)
     {
         Author = author;
         SavedBy = savedBy;
         Content = contents;
         Color = color;
         LastEdit = DateTime.UtcNow;
+        Image = image;
+        Uses = uses ?? Uses;
     }
 }
 #nullable enable

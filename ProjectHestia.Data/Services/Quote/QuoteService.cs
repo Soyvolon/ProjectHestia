@@ -37,7 +37,7 @@ public class QuoteService : IQuoteService
         return new(true, null, quote);
     }
 
-    public async Task<ActionResult<GuildQuote>> UpdateQuoteAsync(Guid key, string author, string savedBy, string quote, string color)
+    public async Task<ActionResult<GuildQuote>> UpdateQuoteAsync(Guid key, string author, string savedBy, string quote, string color, string image, long? uses = null)
     {
         DiscordColor? colorData;
         try
@@ -55,13 +55,20 @@ public class QuoteService : IQuoteService
         if (quoteData is null)
             return new(false, new List<string> { "Failed to find a quote to edit. Make sure you did not modify the edit key field." });
 
-        quoteData.Update(author, savedBy, quote, colorData);
-        await dbContex.SaveChangesAsync();
+        if (!string.IsNullOrEmpty(quote) || !string.IsNullOrEmpty(image))
+        {
+            quoteData.Update(author, savedBy, quote, colorData, image, uses);
+            await dbContex.SaveChangesAsync();
 
-        return new(true, null, quoteData);
+            return new(true, null, quoteData);
+        }
+        else
+        {
+            return new(false, new List<string> { "A quote requires either an image or content." });
+        }
     }
 
-    public async Task<ActionResult<GuildQuote>> AddQuoteAsync(ulong guild, string author, string savedBy, string quote, string color)
+    public async Task<ActionResult<GuildQuote>> AddQuoteAsync(ulong guild, string author, string savedBy, string quote, string color, string image, long? uses = null)
     {
         DiscordColor? colorData;
         try
@@ -77,22 +84,31 @@ public class QuoteService : IQuoteService
         {
             var dbContex = await DbContextFactory.CreateDbContextAsync();
 
-            var quoteData = new GuildQuote()
+            if (!string.IsNullOrEmpty(quote) || !string.IsNullOrEmpty(image))
             {
-                GuildId = guild,
-                Author = author,
-                SavedBy = savedBy,
-                Content = quote,
-                Color = colorData,
-                LastEdit = DateTime.UtcNow
-            };
+                var quoteData = new GuildQuote()
+                {
+                    GuildId = guild,
+                    Author = author,
+                    SavedBy = savedBy,
+                    Content = quote,
+                    Color = colorData,
+                    Image = image,
+                    Uses = uses ?? 0,
+                    LastEdit = DateTime.UtcNow
+                };
 
-            var dataHook = await dbContex.AddAsync(quoteData);
-            await dbContex.SaveChangesAsync();
+                var dataHook = await dbContex.AddAsync(quoteData);
+                await dbContex.SaveChangesAsync();
 
-            await dataHook.ReloadAsync();
+                await dataHook.ReloadAsync();
 
-            return new(true, null, quoteData);
+                return new(true, null, quoteData);
+            }
+            else
+            {
+                return new(false, new List<string> { "A quote requires either an image or content." });
+            }
         }
 
         return new(false, new List<string> { "Failed to ensure a guild existed for this quote." });
@@ -145,5 +161,17 @@ public class QuoteService : IQuoteService
         var quote = guild.GuildQuotes[Random.Next(0, guild.GuildQuotes.Count)];
 
         return await UseQuoteAsync(guildId, quote.QuoteId);
+    }
+
+    public async Task<ActionResult<List<GuildQuote>>> GetQuotesAsync(ulong guildId)
+    {
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+
+        var quotes = await dbContext.GuildQuotes
+            .Where(x => x.GuildId == guildId)
+            .OrderBy(x => x.QuoteId)
+            .ToListAsync();
+
+        return new(true, null, quotes);
     }
 }
