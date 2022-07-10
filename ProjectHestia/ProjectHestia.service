@@ -4,6 +4,7 @@ Description=The Project Hestia application
 [Service]
 Type=Notify
 ExecStart=/usr/bin/dotnet /root/ProjectHestia/ProjectHestia.dll
+WorkingDirectory=/root/ProjectHestia
 SyslogIdentifier=ProjectHestia
 User=root
 Restart=always
