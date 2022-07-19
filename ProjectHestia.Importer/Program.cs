@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using CloudNine.Core.Database;
+using CloudNine.Core.Moderation;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +9,9 @@ using Newtonsoft.Json;
 
 using ProjectHestia.Data.Database;
 using ProjectHestia.Data.Services.Guild;
+using ProjectHestia.Data.Services.Moderator;
 using ProjectHestia.Data.Services.Quote;
+using ProjectHestia.Data.Structures.Data.Moderator;
 using ProjectHestia.Data.Structures.Data.Quotes;
 
 Console.WriteLine("Hello, World!");
@@ -26,7 +29,8 @@ services.AddDbContext<CloudNineDatabaseModel>(ServiceLifetime.Transient, Service
     .AddDbContextFactory<ApplicationDbContext>(options =>
         options.UseNpgsql(config.NpgSql))
     .AddSingleton<IQuoteService, QuoteService>()
-    .AddSingleton<IGuildService, GuildService>();
+    .AddSingleton<IGuildService, GuildService>()
+    .AddSingleton<IModeratorService, ModeratorService>();
 
 var provider = services.BuildServiceProvider();
 
@@ -34,33 +38,56 @@ using var oldDb = provider.GetRequiredService<CloudNineDatabaseModel>();
 using var newDb = provider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>().CreateDbContext();
 var quoteService = provider.GetRequiredService<IQuoteService>();
 
+#region Quote Data
+//Console.WriteLine("Reading old data ...");
+
+//List<GuildQuote> quotes = new();
+
+//var oldData = await oldDb.ServerConfigurations
+//    .ToListAsync();
+
+//Console.WriteLine("Got old data, strating write...");
+
+//foreach (var x in oldData)
+//{
+//    var order = x.Quotes.Values.OrderBy(x => x.Id);
+//    foreach (var q in order)
+//    {
+//        string color = q.ColorValue is null ? "3498db" : q.ColorValue.Value.ToString("X");
+//        var res = await quoteService.AddQuoteAsync(x.Id, q.Author, q.SavedBy, q.Content, color, q.Attachment, q.Uses, q.Id);
+//        if (!res.GetResult(out var err))
+//        {
+//            Console.WriteLine($"{x.Id}:{q.Id}-{err[0]}");
+//            // Colors cause a lot of problems, so lets try this again
+//            Console.WriteLine($"Retrying for {x.Id}:{q.Id}\n");
+//            res = await quoteService.AddQuoteAsync(x.Id, q.Author, q.SavedBy, q.Content, "3498db", q.Attachment, q.Uses, q.Id);
+//            if (!res.GetResult(out err))
+//            {
+//                Console.WriteLine($"{x.Id}:{q.Id}-{err[0]}\n");
+//            }
+//        }
+//    }
+//}
+
+//Console.WriteLine("Finished moving quote data.");
+#endregion
+
+#region Ban Data
 Console.WriteLine("Reading old data ...");
 
-List<GuildQuote> quotes = new();
-var oldData = await oldDb.ServerConfigurations
-    .ToListAsync();
+var modService = provider.GetRequiredService<IModeratorService>();
 
-Console.WriteLine("Got old data, strating write...");
+List<Warn> oldWarns = new();
 
-foreach (var x in oldData)
+var modCore = await oldDb.Moderation.ToListAsync();
+
+foreach(var mod in modCore)
 {
-    var order = x.Quotes.Values.OrderBy(x => x.Id);
-    foreach (var q in order)
+    foreach(var warn in mod.WarnSet)
     {
-        string color = q.ColorValue is null ? "3498db" : q.ColorValue.Value.ToString("X");
-        var res = await quoteService.AddQuoteAsync(x.Id, q.Author, q.SavedBy, q.Content, color, q.Attachment, q.Uses, q.Id);
-        if (!res.GetResult(out var err))
-        {
-            Console.WriteLine($"{x.Id}:{q.Id}-{err[0]}");
-            // Colors cause a lot of problems, so lets try this again
-            Console.WriteLine($"Retrying for {x.Id}:{q.Id}\n");
-            res = await quoteService.AddQuoteAsync(x.Id, q.Author, q.SavedBy, q.Content, "3498db", q.Attachment, q.Uses, q.Id);
-            if(!res.GetResult(out err))
-            {
-                Console.WriteLine($"{x.Id}:{q.Id}-{err[0]}\n");
-            }
-        }
+        await modService.StrikeUserAsync(mod.GuildId, warn.UserId, warn.Message);
     }
 }
 
-Console.WriteLine("Finished moving quote data.");
+Console.WriteLine("Finished moving ban data.");
+#endregion

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using ProjectHestia.Data.Structures.Data.Guild;
+using ProjectHestia.Data.Structures.Data.Moderator;
 using ProjectHestia.Data.Structures.Data.Quotes;
 
 using System;
@@ -15,6 +16,7 @@ public class ApplicationDbContext : DbContext
 {
     internal DbSet<GuildQuote> GuildQuotes { get; set; }
     internal DbSet<GuidConfiguration> GuidConfigurations { get; set; }
+    internal DbSet<UserStrike> UserStrikes { get; set; }
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options) { }
@@ -34,6 +36,12 @@ public class ApplicationDbContext : DbContext
 
         var guildConfigurations = builder.Entity<GuidConfiguration>();
         guildConfigurations.HasKey(e => e.Key);
+
+        var userStrikes = builder.Entity<UserStrike>();
+        userStrikes.HasKey(e => e.Key);
+        userStrikes.HasOne(e => e.Guild)
+            .WithMany(p => p.UserStrikes)
+            .HasForeignKey(e => e.GuildId);
     }
 }
 #nullable enable
