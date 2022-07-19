@@ -39,12 +39,28 @@ public partial class ModeratorCommandGroup : CommandModule
             {
                 if (timeout > 0)
                 {
-                    await member.TimeoutAsync(DateTime.UtcNow.AddHours(timeout), reason.Length > 450 ? reason[..450] : reason);
+                    try
+                    {
+                        await member.TimeoutAsync(DateTime.UtcNow.AddHours(timeout), reason.Length > 450 ? reason[..450] : reason);
+                    }
+                    catch (Exception ex)
+                    {
+                        await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder()
+                            .WithContent($"Failed to timeout {member.Mention}: {ex.Message}"));
+                    }
                 }
 
                 if (alert)
                 {
-                    await member.SendMessageAsync(reason);
+                    try
+                    {
+                        await member.SendMessageAsync($"You received a strike on **{ctx.Guild.Name}** for: {reason}");
+                    }
+                    catch (Exception ex)
+                    {
+                        await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder()
+                            .WithContent($"Failed to send a message to {member.Mention}: {ex.Message}"));
+                    }
                 }
 
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder()
