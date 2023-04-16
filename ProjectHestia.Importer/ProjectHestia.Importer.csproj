@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CloudNineBot\CloudNine.Core\CloudNine.Core.csproj" />
     <ProjectReference Include="..\ProjectHestia.Data\ProjectHestia.Data.csproj" />
   </ItemGroup>
 

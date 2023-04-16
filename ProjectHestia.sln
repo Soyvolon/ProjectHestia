@@ -16,14 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. sln", "1. sln", "{4960DB
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectHestia.Importer", "ProjectHestia.Importer\ProjectHestia.Importer.csproj", "{5EC9DDAA-A965-46A3-BD51-E60483B76DC1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0CAE816E-8CCB-4FE4-A22A-625D1F2D81E1} = {0CAE816E-8CCB-4FE4-A22A-625D1F2D81E1}
-		{27D8F693-4171-4BB2-BBE8-CBBE4348AED2} = {27D8F693-4171-4BB2-BBE8-CBBE4348AED2}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudNine.Core", "..\CloudNineBot\CloudNine.Core\CloudNine.Core.csproj", "{0CAE816E-8CCB-4FE4-A22A-625D1F2D81E1}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,10 +34,6 @@ Global
 		{27D8F693-4171-4BB2-BBE8-CBBE4348AED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27D8F693-4171-4BB2-BBE8-CBBE4348AED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27D8F693-4171-4BB2-BBE8-CBBE4348AED2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5EC9DDAA-A965-46A3-BD51-E60483B76DC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5EC9DDAA-A965-46A3-BD51-E60483B76DC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0CAE816E-8CCB-4FE4-A22A-625D1F2D81E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0CAE816E-8CCB-4FE4-A22A-625D1F2D81E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
