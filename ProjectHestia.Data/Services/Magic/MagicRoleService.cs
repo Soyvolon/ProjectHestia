@@ -39,6 +39,7 @@ public class MagicRoleService : IMagicRoleService
 
     public void QueueGuildForLoading(DiscordGuild guild)
     {
+        // hi.
         lock (ToLoad)
         {
             ToLoad.Add(guild);
