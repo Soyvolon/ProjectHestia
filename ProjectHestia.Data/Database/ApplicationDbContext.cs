@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using ProjectHestia.Data.Structures.Data.Guild;
+using ProjectHestia.Data.Structures.Data.Magic;
 using ProjectHestia.Data.Structures.Data.Moderator;
 using ProjectHestia.Data.Structures.Data.Quotes;
 
@@ -42,6 +43,12 @@ public class ApplicationDbContext : DbContext
         userStrikes.HasOne(e => e.Guild)
             .WithMany(p => p.UserStrikes)
             .HasForeignKey(e => e.GuildId);
+
+        var magicRole = builder.Entity<MagicRole>();
+        magicRole.HasKey(e => e.Key);
+        magicRole.HasOne(e => e.Guild)
+            .WithOne(p => p.MagicRole)
+            .HasForeignKey<MagicRole>(e => e.GuildId);
     }
 }
 #nullable enable

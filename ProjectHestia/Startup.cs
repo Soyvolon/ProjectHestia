@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using ProjectHestia.Data.Database;
 using ProjectHestia.Data.Services.Discord;
 using ProjectHestia.Data.Services.Guild;
+using ProjectHestia.Data.Services.Magic;
 using ProjectHestia.Data.Services.Moderator;
 using ProjectHestia.Data.Services.Quote;
 
@@ -46,6 +47,7 @@ public class Startup
             .AddSingleton<IQuoteService, QuoteService>()
             .AddSingleton<IGuildService, GuildService>()
             .AddSingleton<IModeratorService, ModeratorService>()
+            .AddSingleton<IMagicRoleService, MagicRoleService>()
             .AddSingleton(new DiscordConfiguration()
             {
                 Token = Configuration["Discord:Token"]
@@ -75,7 +77,16 @@ public class Startup
         ApplyDatabaseMigrations(db);
 
         var discordClient = scope.ServiceProvider.GetRequiredService<IDiscordService>();
-        _ = Task.Run(async () => await discordClient.InitalizeAsync());
+        _ = Task.Run(async () => {
+            try
+            {
+                await discordClient.InitalizeAsync();
+            }
+            catch (Exception ex)
+            {
+
+            }
+        });
 
         app.UseForwardedHeaders(new ForwardedHeadersOptions()
         {

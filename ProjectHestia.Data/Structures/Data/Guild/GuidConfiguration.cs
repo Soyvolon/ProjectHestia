@@ -1,4 +1,5 @@
-﻿using ProjectHestia.Data.Structures.Data.Moderator;
+﻿using ProjectHestia.Data.Structures.Data.Magic;
+using ProjectHestia.Data.Structures.Data.Moderator;
 using ProjectHestia.Data.Structures.Data.Quotes;
 
 using System;
@@ -12,4 +13,5 @@ public class GuidConfiguration : DataObject<ulong>
 {
     public List<GuildQuote> GuildQuotes { get; set; } = new();
     public List<UserStrike> UserStrikes { get; set; } = new();
+    public MagicRole? MagicRole { get; set; }
 }

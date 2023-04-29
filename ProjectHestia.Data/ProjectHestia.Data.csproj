@@ -19,10 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-01493" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0-nightly-01493" />
-    <PackageReference Include="DSharpPlus.Rest" Version="5.0.0-nightly-01493" />
-    <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0-nightly-01493" />
+    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-01507" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0-nightly-01507" />
+    <PackageReference Include="DSharpPlus.Rest" Version="5.0.0-nightly-01507" />
+    <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0-nightly-01507" />
+    <PackageReference Include="Emzi0767.Common" Version="2.6.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
       <PrivateAssets>all</PrivateAssets>
@@ -34,16 +35,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.3" />
-    <PackageReference Include="XeroxDev.DSharpPlus.ModalCommands" Version="1.3.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.4" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Commands\Configuration\" />
-    <Folder Include="Commands\Magic\" />
-    <Folder Include="Commands\Magic\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Services\Magic\" />
     <Folder Include="Structures\Enum\" />
   </ItemGroup>
 

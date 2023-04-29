@@ -1,6 +1,5 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.ModalCommands;
 using DSharpPlus.SlashCommands;
 
 using System;
@@ -36,7 +35,8 @@ public partial class ManageQuoteCommandGroup : CommandModule
 
             var modal = editType switch
             {
-                "content" => ModalBuilder.Create("quote-edit-content")
+                "content" => new DiscordInteractionResponseBuilder()
+                    .WithCustomId("quote-edit-content")
                     .WithTitle("Edit Quote")
                     .AddComponents(new TextInputComponent("Author", "author", "Author", quote.Author))
                     .AddComponents(new TextInputComponent("Content", "content", "What do you want to quote...", quote.Content, style: TextInputStyle.Paragraph, required: false))
@@ -44,7 +44,8 @@ public partial class ManageQuoteCommandGroup : CommandModule
                     .AddComponents(new TextInputComponent("Edit Key (Do Not Change)", "key", value: key, min_length: key.Length, max_length: key.Length))
                     .AsEphemeral(),
 
-                "metadata" => ModalBuilder.Create("quote-edit-metadata")
+                "metadata" => new DiscordInteractionResponseBuilder()
+                    .WithCustomId("quote-edit-metadata")
                     .WithTitle("Edit Quote Metadata")
                     .AddComponents(new TextInputComponent("Author", "author", "Author", quote.Author))
                     .AddComponents(new TextInputComponent("Saved By", "saved-by", "Who saved this quote?", quote.SavedBy))

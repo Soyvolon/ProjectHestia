@@ -1,6 +1,5 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.ModalCommands;
 using DSharpPlus.SlashCommands;
 
 using System;
@@ -17,7 +16,8 @@ public partial class ManageQuoteCommandGroup : CommandModule
     [SlashCommandPermissions(Permissions.ManageMessages)]
     public async Task AddQuoteAsync(InteractionContext ctx)
     {
-        var modal = ModalBuilder.Create("quote")
+        var modal = new DiscordInteractionResponseBuilder()
+            .WithCustomId("quote")
             .WithTitle("Add Quote")
             .AddComponents(new TextInputComponent("Author", "author", "Author"))
             .AddComponents(new TextInputComponent("Saved By", "saved-by", "Who saved this quote..."))

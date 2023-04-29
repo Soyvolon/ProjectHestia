@@ -1,6 +1,5 @@
 ﻿using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.ModalCommands;
 using DSharpPlus.SlashCommands;
 
 namespace ProjectHestia.Data.Commands.MQuote;
@@ -22,7 +21,8 @@ public partial class ManageQuoteCommandGroup : CommandModule
         }
         else
         {
-            var modal = ModalBuilder.Create("quote-delete")
+            var modal = new DiscordInteractionResponseBuilder()
+                .WithCustomId("quote-delete")
                 .WithTitle("Press Submit to Delete")
                 .AddComponents(new TextInputComponent("ID", "id", "-1", quote.QuoteId.ToString()))
                 .AddComponents(new TextInputComponent("Author", "author", "Author", quote.Author))

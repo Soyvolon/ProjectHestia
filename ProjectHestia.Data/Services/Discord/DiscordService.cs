@@ -3,14 +3,13 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
-using DSharpPlus.ModalCommands;
-using DSharpPlus.ModalCommands.EventArgs;
-using DSharpPlus.ModalCommands.Extensions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+
+using ProjectHestia.Data.Services.Magic;
 
 using System;
 using System.Collections.Generic;
@@ -24,21 +23,19 @@ public class DiscordService : IDiscordService
 {
     private readonly IConfiguration _configuration;
     private readonly DiscordShardedClient _client;
+    private readonly IMagicRoleService _magicRoles;
 
     private SlashCommandsConfiguration SlashCommandsConfiguration { get; init; }
-    private ModalCommandsConfiguration ModalCommandsConfiguration { get; init; }
     private InteractivityConfiguration InteractivityConfiguration { get; init; }
     
-    public DiscordService(IConfiguration configuration, DiscordShardedClient client, IServiceProvider services)
+    public DiscordService(IConfiguration configuration, DiscordShardedClient client,
+        IMagicRoleService magicRoles, IServiceProvider services)
     {
         _configuration = configuration;
         _client = client;
+        _magicRoles = magicRoles;
 
         SlashCommandsConfiguration = new()
-        {
-            Services = services
-        };
-        ModalCommandsConfiguration = new()
         {
             Services = services
         };
@@ -74,33 +71,27 @@ public class DiscordService : IDiscordService
 
             slashCommand.ContextMenuErrored += SlashCommand_ContextMenuErrored;
             slashCommand.SlashCommandErrored += SlashCommand_SlashCommandErrored;
-
-            // Register Modal commands
-            var modalCommand = slashCommand.Client.UseModalCommands(ModalCommandsConfiguration);
-            modalCommand.RegisterModals(Assembly.GetAssembly(typeof(DiscordService)) 
-                ?? Assembly.GetExecutingAssembly());
-
-            modalCommand.ModalCommandErrored += ModalCommand_ModalCommandErrored;
         }
 
         await _client.UseInteractivityAsync(InteractivityConfiguration);
 
         // TOOD: Client Event Registration
         _client.ClientErrored += Client_ClientErrored;
+        _client.GuildAvailable += Client_GuildAvailable;
 
         await _client.StartAsync();
+    }
+
+    private Task Client_GuildAvailable(DiscordClient sender, GuildCreateEventArgs args)
+    {
+        _magicRoles.QueueGuildForLoading(args.Guild);
+
+        return Task.CompletedTask;
     }
 
     private Task Client_ClientErrored(DiscordClient sender, ClientErrorEventArgs e)
     {
         sender.Logger.LogError(e.Exception, "Client errored");
-
-        return Task.CompletedTask;
-    }
-
-    private Task ModalCommand_ModalCommandErrored(ModalCommandsExtension sender, ModalCommandErrorEventArgs e)
-    {
-        sender.Client?.Logger.LogWarning(e.Exception, "Modal Command Errored");
 
         return Task.CompletedTask;
     }

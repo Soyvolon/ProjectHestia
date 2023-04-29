@@ -1,25 +1,34 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
 
 using Microsoft.EntityFrameworkCore;
 
 using ProjectHestia.Data.Database;
 using ProjectHestia.Data.Services.Guild;
 using ProjectHestia.Data.Structures.Data.Quotes;
+using ProjectHestia.Data.Structures.Discord;
 using ProjectHestia.Data.Structures.Util;
 
 namespace ProjectHestia.Data.Services.Quote;
 public class QuoteService : IQuoteService
 {
     private IDbContextFactory<ApplicationDbContext> DbContextFactory { get; init; }
+    private DiscordShardedClient DiscordClient { get; init; }
     private IGuildService GuildService { get; init; }
     private Random Random { get; set; }
+    
 
-    public QuoteService(IDbContextFactory<ApplicationDbContext> dbContextFactory, IGuildService guildService)
+    public QuoteService(IDbContextFactory<ApplicationDbContext> dbContextFactory, 
+        DiscordShardedClient discordClient, IGuildService guildService)
     {
         DbContextFactory = dbContextFactory;
+        DiscordClient = discordClient;
         GuildService = guildService;
 
         Random = new();
+
+        DiscordClient.ModalSubmitted += DiscordClient_ModalSubmitted;
     }
 
     public async Task<ActionResult<GuildQuote>> GetQuoteAsync(ulong guildId, long quoteId)
@@ -191,4 +200,135 @@ public class QuoteService : IQuoteService
 
         return new(true, null, quotes);
     }
+
+    #region Modals
+    private Task DiscordClient_ModalSubmitted(DiscordClient sender, ModalSubmitEventArgs args)
+    {
+        _ = Task.Run(async () =>
+        {
+            var id = args.Interaction.Data.CustomId;
+            switch(id)
+            {
+                case "quote":
+                    await ModifyQuoteAsync(args);
+                    break;
+                case "quote-delete":
+                    await DeleteQuoteAsync(args,
+                        args.Values["id"]);
+                    break;
+                case "quote-edit-content":
+                    await ModifyQuoteContentAsync(args);
+                    break;
+                case "quote-edit-metadata":
+                    await ModifyQuoteMetadataAsync(args);
+                    break;
+            }
+        });
+
+        return Task.CompletedTask;
+    }
+
+    private async Task ModifyQuoteMetadataAsync(ModalSubmitEventArgs args)
+        => await ModifyQuoteAsync(args,
+            args.Values["author"],
+            args.Values["savedBy"], 
+            null!,
+            args.Values["color"], 
+            null!,
+            args.Values["uses"],
+            args.Values["quoteKey"], 
+            true);
+
+    private async Task ModifyQuoteContentAsync(ModalSubmitEventArgs args)
+        => await ModifyQuoteAsync(args,
+            args.Values["author"], 
+            null!,
+            args.Values["quote"], 
+            null!,
+            args.Values["image"], 
+            null!,
+            args.Values["quoteKey"], 
+            false);
+
+    private async Task ModifyQuoteAsync(ModalSubmitEventArgs args, string author, string savedBy, string quote, string color, string image, string uses, string? quoteKey = null, bool metadata = false)
+    {
+        await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+        GuildQuote? quoteData;
+        List<string>? err;
+
+        _ = long.TryParse(uses, out var usesInt);
+
+        if (Guid.TryParse(quoteKey, out var key))
+        {
+            // Update quote.
+            var res = await UpdateQuoteAsync(key, author, savedBy, quote, color, image, usesInt, metadata);
+            _ = res.GetResult(out quoteData, out err);
+        }
+        else
+        {
+            // Add quote.
+            var res = await AddQuoteAsync(args.Interaction.GuildId ?? 0, author, savedBy, quote, color, image);
+            _ = res.GetResult(out quoteData, out err);
+        }
+
+        if (quoteData is null)
+        {
+            // An error occoured.
+            await args.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
+                .AddEmbed(EmbedTemplates.GetErrorBuilder()
+                    .WithTitle("Failed to edit/add a quote.")
+                    .WithDescription(err?.FirstOrDefault() ?? "")));
+        }
+        else
+        {
+            // Display the quote
+            await args.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
+                .AddEmbed(quoteData.Build()));
+        }
+    }
+
+    private async Task ModifyQuoteAsync(ModalSubmitEventArgs args)
+        => await ModifyQuoteAsync(args,
+            args.Values["author"],
+            args.Values["savedBy"],
+            args.Values["quote"], 
+            args.Values["color"], 
+            args.Values["image"], 
+            null!);
+
+    private async Task DeleteQuoteAsync(ModalSubmitEventArgs args, string id)
+    {
+        await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+
+        if (long.TryParse(id, out var quoteId))
+        {
+            var res = await DeleteQuoteAsync(args.Interaction.GuildId ?? 0, quoteId);
+
+            if (res.GetResult(out var resData, out var err))
+            {
+                // Display the quote
+                await args.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
+                    .AddEmbed(resData.Build()
+                        .WithTitle($"Deleted Quote {quoteId}")));
+            }
+            else
+            {
+                // An error occoured.
+                await args.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
+                    .AddEmbed(EmbedTemplates.GetErrorBuilder()
+                        .WithTitle("Failed to edit/add a quote.")
+                        .WithDescription(err?.FirstOrDefault() ?? "")));
+            }
+        }
+        else
+        {
+            // An error occoured.
+            await args.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
+                .AddEmbed(EmbedTemplates.GetErrorBuilder()
+                    .WithTitle("Failed to delete a quote.")
+                    .WithDescription($"Could not parse {id} into a valid quote ID. Make sure not to change this value.")));
+        }
+    }
+    #endregion
 }
