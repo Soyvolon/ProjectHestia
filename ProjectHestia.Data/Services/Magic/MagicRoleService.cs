@@ -20,7 +20,9 @@ public class MagicRoleService : IMagicRoleService
 {
     private IDbContextFactory<ApplicationDbContext> DbContextFactory { get; init; }
     private ConcurrentDictionary<Guid, Timer> RoleRunners { get; init; } = new();
+    private ConcurrentDictionary<Guid, CancellationTokenSource> CancellationTokens { get; init; } = new();
     private ConcurrentDictionary<ulong, DiscordGuild> GuildMaps { get; init; } = new();
+    private ConcurrentDictionary<ulong, MagicRole?> MagicMaps { get; init; } = new();
 
     private List<DiscordGuild> ToLoad { get; init; } = new();
     private Timer LoadTimer { get; init; }
@@ -35,6 +37,8 @@ public class MagicRoleService : IMagicRoleService
         DiscordClient = discordClient;
 
         LoadTimer = new Timer(LoadGuildsAsync, null, TimeSpan.FromSeconds(30), TimeSpan.FromMinutes(1));
+
+        DiscordClient.MessageCreated += DiscordClient_MessageCreated;
     }
 
     public void QueueGuildForLoading(DiscordGuild guild)
@@ -90,29 +94,40 @@ public class MagicRoleService : IMagicRoleService
         }
     }
 
-    private async Task ExecuteRoleUpdateAsync(MagicRole role, DiscordGuild guild)
+    private async Task ExecuteRoleUpdateAsync(MagicRole role, DiscordGuild guild,
+        CancellationToken cancellationToken)
     {
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var members = await guild.GetAllMembersAsync();
             var guildRole = guild.GetRole(role.RoleId);
 
             var currentMembers = members.Where(x => x.Roles.Contains(guildRole));
             var potentialMembers = members.Where(x => !currentMembers.Contains(x)).ToArray();
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             foreach (var member in currentMembers)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 await member.RevokeRoleAsync(guildRole);
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromSeconds(2.5), cancellationToken);
             }
 
             var memberIndices = Enumerable.Range(0, potentialMembers.Length)
                 .ToList();
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             int[] newMemberIndices;
             lock (Random)
             {
                 int count = Random.Next(role.SelectionSizeMin, role.SelectionSizeMax);
+                count = Math.Min(count, potentialMembers.Length);
+
                 newMemberIndices = new int[count];
                 for (int i = 0; i < count; i++)
                 {
@@ -120,17 +135,73 @@ public class MagicRoleService : IMagicRoleService
                 }
             }
 
-            foreach(var index in newMemberIndices)
+            cancellationToken.ThrowIfCancellationRequested();
+
+            foreach (var index in newMemberIndices)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var member = potentialMembers[index];
                 await member.GrantRoleAsync(guildRole);
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromSeconds(2.5), cancellationToken);
             }
+        }
+        catch(OperationCanceledException)
+        {
+            // Do nothing, this is intended. (except log).
         }
         catch (Exception ex)
         {
             // TODO Log error
         }
+    }
+
+    private Task DiscordClient_MessageCreated(DiscordClient sender, MessageCreateEventArgs args)
+    {
+        if (GuildMaps.TryGetValue(args.Guild.Id, out _))
+        {
+            _ = Task.Run(async () =>
+            {
+                await RemoveUserFromRoleIfOverMaxMessageCount(args);
+            });
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private async Task RemoveUserFromRoleIfOverMaxMessageCount(MessageCreateEventArgs args)
+    {
+        if (args.Author is not DiscordMember member)
+            return;
+
+        if (!MagicMaps.TryGetValue(args.Guild.Id, out var mRole))
+        {
+            var mRes = await GetMagicRoleAsync(args.Guild);
+            _ = mRes.GetResult(out mRole, out _);
+            MagicMaps[args.Guild.Id] = mRole;
+        }
+
+        if (mRole is null || mRole.MaxMessages == 0)
+            return;
+
+        if (!member.Roles.Any(x => x.Id == mRole.RoleId))
+            return;
+
+        if (!mRole.UserMessageCounts.TryGetValue(args.Author.Id, out var count))
+            count = 0;
+
+        if (mRole.WatchedChannels.Contains(args.Channel.Id))
+        {
+            mRole.UserMessageCounts[args.Author.Id] = count + 1;
+
+            if (mRole.UserMessageCounts[args.Author.Id] >= mRole.MaxMessages)
+            {
+                var role = args.Guild.GetRole(mRole.RoleId);
+                await member.RevokeRoleAsync(role);
+
+                _ = mRole.UserMessageCounts.TryRemove(args.Author.Id, out _);
+            }
+        }    
     }
 
     public async Task<ActionResult<MagicRole?>> GetMagicRoleAsync(DiscordGuild guild)
@@ -167,6 +238,7 @@ public class MagicRoleService : IMagicRoleService
                     GetTimer(role, guild),
                     (x, y) =>
                     {
+                        CancellationTokens[role.Key].Cancel();
                         y.Dispose();
                         return GetTimer(role, guild);
                     });
@@ -209,6 +281,11 @@ public class MagicRoleService : IMagicRoleService
     }
 
     private Timer GetTimer(MagicRole role, DiscordGuild guild)
-        => new(async (x) => await ExecuteRoleUpdateAsync(role, guild),
+    {
+        CancellationTokenSource tokenSource = new();
+        CancellationTokens[role.Key] = tokenSource;
+
+        return new(async (x) => await ExecuteRoleUpdateAsync(role, guild, tokenSource.Token),
             null, TimeSpan.FromSeconds(15), role.Interval);
+    }
 }

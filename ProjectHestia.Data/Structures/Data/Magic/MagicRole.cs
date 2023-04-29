@@ -1,6 +1,7 @@
 ﻿using ProjectHestia.Data.Structures.Data.Guild;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,4 +19,11 @@ public class MagicRole : DataObject<Guid>
 
     public TimeSpan Interval { get; set; }
     public DateTime LastInterval { get; set; }
+
+    public List<ulong> WatchedChannels { get; set; } = new();
+    public long MaxMessages { get; set; }
+
+    #region Non-DB Fields
+    public ConcurrentDictionary<ulong, int> UserMessageCounts { get; init; } = new();
+    #endregion
 }

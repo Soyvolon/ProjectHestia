@@ -26,10 +26,13 @@ public partial class MagicRoleCommandGroup
                 // A success occoured.
                 await ctx.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
                     .AddEmbed(EmbedTemplates.GetSuccessBuilder()
-                        .WithTitle($"Magic Role: <@{role.RoleId}>")
-                        .WithDescription($"Interval: {role.Interval}\n" +
+                        .WithTitle($"Magic Role")
+                        .WithDescription($"Role: <@&{role.RoleId}>\n" +
+                        $"Interval: {role.Interval}\n" +
                         $"Min Members: {role.SelectionSizeMin}\n" +
-                        $"Max Members: {role.SelectionSizeMax}")));
+                        $"Max Members: {role.SelectionSizeMax}\n" +
+                        $"Watched Channels: <#{string.Join(">, <#", role.WatchedChannels)}>\n" +
+                        $"Max Messages: {role.MaxMessages}")));
             }
             else
             {

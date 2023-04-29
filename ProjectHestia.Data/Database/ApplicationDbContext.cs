@@ -49,6 +49,7 @@ public class ApplicationDbContext : DbContext
         magicRole.HasOne(e => e.Guild)
             .WithOne(p => p.MagicRole)
             .HasForeignKey<MagicRole>(e => e.GuildId);
+        magicRole.Ignore(e => e.UserMessageCounts);
     }
 }
 #nullable enable
