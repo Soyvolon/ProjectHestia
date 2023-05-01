@@ -231,23 +231,23 @@ public class QuoteService : IQuoteService
     private async Task ModifyQuoteMetadataAsync(ModalSubmitEventArgs args)
         => await ModifyQuoteAsync(args,
             args.Values["author"],
-            args.Values["savedBy"], 
+            args.Values["saved-by"], 
             null!,
             args.Values["color"], 
             null!,
             args.Values["uses"],
-            args.Values["quoteKey"], 
+            args.Values["key"], 
             true);
 
     private async Task ModifyQuoteContentAsync(ModalSubmitEventArgs args)
         => await ModifyQuoteAsync(args,
             args.Values["author"], 
             null!,
-            args.Values["quote"], 
+            args.Values["content"], 
             null!,
             args.Values["image"], 
             null!,
-            args.Values["quoteKey"], 
+            args.Values["key"], 
             false);
 
     private async Task ModifyQuoteAsync(ModalSubmitEventArgs args, string author, string savedBy, string quote, string color, string image, string uses, string? quoteKey = null, bool metadata = false)
@@ -291,8 +291,8 @@ public class QuoteService : IQuoteService
     private async Task ModifyQuoteAsync(ModalSubmitEventArgs args)
         => await ModifyQuoteAsync(args,
             args.Values["author"],
-            args.Values["savedBy"],
-            args.Values["quote"], 
+            args.Values["saved-by"],
+            args.Values["content"], 
             args.Values["color"], 
             args.Values["image"], 
             null!);

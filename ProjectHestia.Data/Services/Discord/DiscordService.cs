@@ -7,9 +7,11 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using ProjectHestia.Data.Services.Magic;
+using ProjectHestia.Data.Services.Quote;
 
 using System;
 using System.Collections.Generic;
@@ -44,6 +46,9 @@ public class DiscordService : IDiscordService
             ButtonBehavior = DSharpPlus.Interactivity.Enums.ButtonPaginationBehavior.DeleteButtons,
             PaginationBehaviour = DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround
         };
+
+        // We need to initalize this at least once.
+        _ = services.GetRequiredService<IQuoteService>();
     }
 
     public async Task InitalizeAsync()
