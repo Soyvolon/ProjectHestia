@@ -41,23 +41,9 @@ public partial class MagicRoleCommandGroup
 
         mRole.MaxMessages = maxMessages;
 
-        if (mRole.MaxMessages != 0)
+        if (CheckIfWatchedChannelShouldBeSet(mRole))
         {
-            var interact = ctx.Client.GetInteractivity();
-
-            var channelString = string.Join(", ", mRole.WatchedChannels);
-            var msg = await ctx.Interaction.EditOriginalResponseAsync(new DiscordWebhookBuilder()
-                .AddComponents(new DiscordChannelSelectComponent("magic-role-autoremove-select", "Select a channel.",
-                    new ChannelType[] { ChannelType.Text }, false, 1, 25))
-                .WithContent("Select the role to be used as the magic role: "));
-
-            var interactRes = await interact.WaitForSelectAsync(msg, "magic-role-autoremove-select", TimeSpan.FromMinutes(3));
-
-            var channels = interactRes.Result.Values;
-
-            await interactRes.Result.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-
-            mRole.WatchedChannels = channels.Select(ulong.Parse).ToList();
+            await SetWatchedChannels(mRole, ctx);
         }
 
         var updateRes = await _magicRoleService.UpdateOrCreateMagicRole(mRole);

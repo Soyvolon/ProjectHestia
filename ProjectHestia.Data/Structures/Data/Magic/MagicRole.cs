@@ -23,6 +23,10 @@ public class MagicRole : DataObject<Guid>
     public List<ulong> WatchedChannels { get; set; } = new();
     public long MaxMessages { get; set; }
 
+    public bool UsePercentBootInsteadOfMaxMessages { get; set; } = false;
+    public double RandomRemoveStartingPercentage { get; set; } = 0.05;
+    public double RandomRemovePercentageModPerMessage { get; set; } = 0.15;
+
     #region Non-DB Fields
     public ConcurrentDictionary<ulong, int> UserMessageCounts { get; init; } = new();
     #endregion

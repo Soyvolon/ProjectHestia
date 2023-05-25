@@ -31,8 +31,13 @@ public partial class MagicRoleCommandGroup
                         $"Interval: {role.Interval}\n" +
                         $"Min Members: {role.SelectionSizeMin}\n" +
                         $"Max Members: {role.SelectionSizeMax}\n" +
+                        $"\n" +
                         $"Watched Channels: <#{string.Join(">, <#", role.WatchedChannels)}>\n" +
-                        $"Max Messages: {role.MaxMessages}")));
+                        $"Max Messages: {role.MaxMessages}\n" +
+                        $"\n" +
+                        $"Use Random Removal: {role.UsePercentBootInsteadOfMaxMessages}\n" +
+                        $"Starting Percentage: {role.RandomRemoveStartingPercentage}\n" +
+                        $"Mod Per Message: {role.RandomRemovePercentageModPerMessage}")));
             }
             else
             {

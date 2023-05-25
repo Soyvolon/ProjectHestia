@@ -181,7 +181,18 @@ public class MagicRoleService : IMagicRoleService
             MagicMaps[args.Guild.Id] = mRole;
         }
 
-        if (mRole is null || mRole.MaxMessages == 0)
+        bool useMaxMsgs = false;
+        bool useRandomMsgs = false;
+        if (mRole is not null)
+        {
+            useMaxMsgs = mRole.MaxMessages != 0 && !mRole.UsePercentBootInsteadOfMaxMessages;
+            useRandomMsgs = mRole.UsePercentBootInsteadOfMaxMessages
+                    && mRole.RandomRemovePercentageModPerMessage != 0
+                    && mRole.RandomRemoveStartingPercentage != 0;
+        }
+
+        if (mRole is null
+            || !(useMaxMsgs || useRandomMsgs))
             return;
 
         if (!member.Roles.Any(x => x.Id == mRole.RoleId))
@@ -194,7 +205,26 @@ public class MagicRoleService : IMagicRoleService
         {
             mRole.UserMessageCounts[args.Author.Id] = count + 1;
 
-            if (mRole.UserMessageCounts[args.Author.Id] >= mRole.MaxMessages)
+            bool remove = false;
+            if (mRole.UsePercentBootInsteadOfMaxMessages)
+            {
+                double roll;
+                lock (Random)
+                {
+                    roll = Random.NextDouble();
+                }
+
+                double valueToBeat = mRole.RandomRemoveStartingPercentage 
+                    + (mRole.UserMessageCounts[args.Author.Id] - 1) * mRole.RandomRemovePercentageModPerMessage;
+
+                remove = roll < valueToBeat;
+            }
+            else
+            {
+                remove = mRole.UserMessageCounts[args.Author.Id] >= mRole.MaxMessages;
+            }
+
+            if (remove)
             {
                 var role = args.Guild.GetRole(mRole.RoleId);
                 await member.RevokeRoleAsync(role);
