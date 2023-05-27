@@ -31,7 +31,7 @@ public partial class QuoteCommandGroup : CommandModule
         else
         {
             // Display the quote
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder()
+            await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder()
                 .AddEmbed(quote));
         }
     }
@@ -52,7 +52,7 @@ public partial class QuoteCommandGroup : CommandModule
         else
         {
             // Display the quote
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder()
+            await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder()
                 .AddEmbed(quote));
         }
     }
