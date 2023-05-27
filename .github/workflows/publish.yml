@@ -28,7 +28,6 @@ jobs:
         command: ${{ secrets.STOP_CMD }}
         host: ${{ secrets.RELEASE_HOST }}
         username: ${{ secrets.RELEASE_USER }}
-        passphrase: ${{ secrets.RELEASE_PASSPHRASE }}
         privateKey: ${{ secrets.RELEASE_PRIVATE_KEY }}
     - name: Copy Files over SSH
       uses: garygrossgarten/github-action-scp@release
@@ -37,7 +36,6 @@ jobs:
         remote: ${{ secrets.RELEASE_DEST }}
         host: ${{ secrets.RELEASE_HOST }}
         username: ${{ secrets.RELEASE_USER }}
-        passphrase: ${{ secrets.RELEASE_PASSPHRASE }}
         privateKey: ${{ secrets.RELEASE_PRIVATE_KEY }}
     - name: Start New Release
       uses: garygrossgarten/github-action-ssh@release
@@ -45,7 +43,6 @@ jobs:
         command: ${{ secrets.START_CMD }}
         host: ${{ secrets.RELEASE_HOST }}
         username: ${{ secrets.RELEASE_USER }}
-        passphrase: ${{ secrets.RELEASE_PASSPHRASE }}
         privateKey: ${{ secrets.RELEASE_PRIVATE_KEY }}
     - name: Publish Build Artifact
       uses: actions/upload-artifact@v2.2.4
