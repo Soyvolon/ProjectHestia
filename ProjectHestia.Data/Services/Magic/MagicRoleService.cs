@@ -145,6 +145,15 @@ public class MagicRoleService : IMagicRoleService
                 await member.GrantRoleAsync(guildRole);
                 await Task.Delay(TimeSpan.FromSeconds(2.5), cancellationToken);
             }
+
+            if (!MagicMaps.TryGetValue(guild.Id, out var mRole))
+            {
+                var mRes = await GetMagicRoleAsync(guild);
+                _ = mRes.GetResult(out mRole, out _);
+                MagicMaps[guild.Id] = mRole;
+            }
+
+            mRole?.UserMessageCounts.Clear();
         }
         catch(OperationCanceledException)
         {
